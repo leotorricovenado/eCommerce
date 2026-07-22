@@ -14,9 +14,12 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useSession } from "@/state/session";
 
 export function Profile() {
   const nav = useNavigate();
+  const { phone } = useSession();
+  const displayPhone = phone ? `+${phone}` : customer.phone;
   const [notifs, setNotifs] = useState(true);
 
   return (
@@ -64,7 +67,7 @@ export function Profile() {
             <InfoRow
               icon={<Phone size={16} />}
               label="WhatsApp vinculado"
-              value={customer.phone}
+              value={displayPhone}
             />
           </Section>
 

@@ -4,9 +4,12 @@ import { StatusBar, VenadoLogo } from "@/components/chrome";
 import { Screen } from "@/components/DeviceFrame";
 import { Button } from "@/components/primitives";
 import { customer } from "@/data/catalog";
+import { useSession } from "@/state/session";
 
 export function Login() {
   const nav = useNavigate();
+  const { phone } = useSession();
+  const displayPhone = phone ? `+${phone}` : customer.phone;
   return (
     <>
       <StatusBar />
@@ -31,7 +34,7 @@ export function Login() {
                 Te identificamos por tu número
               </p>
               <p className="mt-0.5 font-display text-lg font-bold text-ink">
-                {customer.phone}
+                {displayPhone}
               </p>
               <p className="mt-1 text-[13px] text-muted">
                 {customer.businessName} · {customer.code}
