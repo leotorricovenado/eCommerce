@@ -6,7 +6,6 @@ import { Button, ProductThumb } from "@/components/primitives";
 import { productById, customer } from "@/data/catalog";
 import { bs, computeTotals } from "@/lib/format";
 import { useCart } from "@/state/cart";
-import { useSession } from "@/state/session";
 
 const DISCOUNT_RATE = 0.1;
 
@@ -21,8 +20,8 @@ export function OrderStatus() {
   const nav = useNavigate();
   const { num } = useParams();
   const { lines, subtotal } = useCart();
-  const { phone } = useSession();
-  const whatsappHref = phone ? `https://wa.me/${phone}` : "/";
+  const botPhone = import.meta.env.VITE_BOT_WHATSAPP_NUMBER as string | undefined;
+  const whatsappHref = botPhone ? `https://wa.me/${botPhone}` : "/";
   const discount = subtotal * DISCOUNT_RATE;
   const totals = computeTotals(subtotal, discount);
 
@@ -173,7 +172,7 @@ export function OrderStatus() {
             ¿Dudas con tu pedido? Escribinos por WhatsApp y un asesor te ayuda.
           </div>
 
-          {phone ? (
+          {botPhone ? (
             <a
               href={whatsappHref}
               className="flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-semibold text-white"
