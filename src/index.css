@@ -1,0 +1,75 @@
+@import "tailwindcss";
+
+/* ===========================================================
+   eVenado Catálogo — Design System (marca Grupo Venado / KRIS)
+   Colores tomados de la identidad real de la marca.
+   =========================================================== */
+@theme {
+  --font-display: "Poppins", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+
+  /* Marca */
+  --color-brand: #0b54c9;
+  --color-brand-dark: #093f98;
+  --color-brand-50: #eaf1fd;
+  --color-brand-100: #d5e3fb;
+
+  /* Acento / CTA */
+  --color-accent: #e33231;
+  --color-accent-dark: #c42322;
+
+  /* Colores de categoría */
+  --color-cat-red: #e33231;
+  --color-cat-blue: #1593d6;
+  --color-cat-yellow: #eab818;
+  --color-cat-green: #6ca841;
+
+  /* Neutros */
+  --color-ink: #14181f;
+  --color-muted: #5b6472;
+  --color-line: #e4e7ec;
+  --color-hair: #eef0f3;
+  --color-gray: #c7c7c7;
+  --color-canvas: #f6f7f9;
+  --color-surface: #ffffff;
+
+  /* Semántico */
+  --color-success: #2e9e5b;
+  --color-success-50: #e8f5ee;
+  --color-warning: #eab818;
+  --color-warning-50: #fdf6e3;
+  --color-danger: #e33231;
+  --color-danger-50: #fdeaea;
+
+  --radius-card: 16px;
+}
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+  body {
+    margin: 0;
+    background: var(--color-canvas);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  button {
+    font-family: inherit;
+  }
+}
+
+@layer utilities {
+  /* Oculta la scrollbar en carruseles/chips horizontales */
+  .no-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+}
