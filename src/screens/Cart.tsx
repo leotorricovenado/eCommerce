@@ -3,6 +3,7 @@ import { Trash2, Info, ShoppingCart } from "lucide-react";
 import { StatusBar, TopBar } from "@/components/chrome";
 import { Screen } from "@/components/DeviceFrame";
 import { Button, ProductThumb, QuantityStepper } from "@/components/primitives";
+import { DeliveryPointPicker } from "@/components/DeliveryPointPicker";
 import { productById, customer } from "@/data/catalog";
 import { bs, computeTotals } from "@/lib/format";
 import { useCart } from "@/state/cart";
@@ -92,6 +93,11 @@ export function Cart() {
           <div className="mt-3 flex items-start gap-2 rounded-xl bg-brand-50 p-3 text-[12px] text-brand-dark">
             <Info size={16} className="mt-0.5 shrink-0" />
             Los precios y el stock se confirman al reservar.
+          </div>
+
+          {/* Punto de entrega */}
+          <div className="mt-4">
+            <DeliveryPointPicker />
           </div>
 
           {/* Resumen */}

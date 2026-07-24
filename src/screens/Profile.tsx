@@ -4,6 +4,7 @@ import { customer } from "@/data/catalog";
 import { bs } from "@/lib/format";
 import {
   BadgeCheck,
+  Check,
   LogOut,
   Mail,
   MapPin,
@@ -15,12 +16,14 @@ import {
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSession } from "@/state/session";
+import { useDelivery } from "@/state/delivery";
 
 export function Profile() {
   const nav = useNavigate();
   const { phone } = useSession();
   const displayPhone = phone ? `+${phone}` : customer.phone;
   const [notifs, setNotifs] = useState(true);
+  const { points, selectedId, select } = useDelivery();
 
   return (
     <>
@@ -60,16 +63,56 @@ export function Profile() {
           {/* Logística */}
           <Section title="Información cliente">
             <InfoRow
-              icon={<MapPin size={16} />}
-              label="Dirección de entrega"
-              value={customer.deliveryAddress}
-            />
-            <InfoRow
               icon={<Phone size={16} />}
               label="WhatsApp vinculado"
               value={displayPhone}
             />
           </Section>
+
+          {/* Puntos de entrega */}
+          <div>
+            <h3 className="mb-2 px-1 text-xs font-bold uppercase tracking-wide text-muted">
+              Puntos de entrega
+            </h3>
+            <div className="divide-y divide-hair overflow-hidden rounded-2xl border border-hair bg-surface">
+              {points.map((p) => {
+                const active = p.id === selectedId;
+                return (
+                  <button
+                    key={p.id}
+                    type="button"
+                    onClick={() => select(p.id)}
+                    className="flex w-full items-start gap-3 p-4 text-left"
+                  >
+                    <span className="mt-0.5 text-brand">
+                      <MapPin size={16} />
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm font-medium text-ink">
+                          {p.label}
+                        </p>
+                        {active && (
+                          <span className="inline-flex items-center gap-1 rounded-full bg-brand-50 px-1.5 py-0.5 text-[10px] font-semibold text-brand">
+                            Predeterminada
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-[12px] text-muted">{p.address}</p>
+                    </div>
+                    {active && (
+                      <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-brand text-white">
+                        <Check size={12} strokeWidth={3} />
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+            <p className="mt-1.5 px-1 text-[11px] text-muted">
+              Los pedidos se despachan al punto de entrega elegido en el carrito.
+            </p>
+          </div>
 
           {/* Asesor */}
           <Section title="Información del asesor">

@@ -18,6 +18,7 @@ import { StatusBar, VenadoLogo } from "@/components/chrome";
 import { customer } from "@/data/catalog";
 import { bs } from "@/lib/format";
 import { useOrder } from "@/state/order";
+import { useDelivery } from "@/state/delivery";
 
 // Colores WhatsApp (modo claro).
 const WA = {
@@ -30,6 +31,7 @@ const WA = {
 export function WhatsApp() {
   const nav = useNavigate();
   const { placed } = useOrder();
+  const { selected } = useDelivery();
   const [step, setStep] = useState(placed ? 3 : 1); // intro
   const [confirm, setConfirm] = useState(0); // confirmación post-pedido
   const [typing, setTyping] = useState(false);
@@ -197,8 +199,9 @@ export function WhatsApp() {
 
           {confirm >= 3 && placed && (
             <Bubble side="in">
-              📦 Ya está en preparación en {customer.warehouse}. Te aviso cuando
-              salga para entrega. ¡Gracias por tu compra! 🦌
+              📦 Ya está en preparación para entregarse en {selected.label} (
+              {selected.address}). Te aviso cuando salga para entrega. ¡Gracias
+              por tu compra! 🦌
               <Meta time="14:27" in />
             </Bubble>
           )}

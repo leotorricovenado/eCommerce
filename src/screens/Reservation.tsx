@@ -3,9 +3,10 @@ import { Check, Clock, AlertTriangle } from "lucide-react";
 import { StatusBar } from "@/components/chrome";
 import { Screen } from "@/components/DeviceFrame";
 import { Button, ProductThumb } from "@/components/primitives";
-import { productById, customer } from "@/data/catalog";
+import { productById } from "@/data/catalog";
 import { bs, computeTotals } from "@/lib/format";
 import { useCart } from "@/state/cart";
+import { useDelivery } from "@/state/delivery";
 import { useCountdown } from "@/lib/useCountdown";
 
 const DISCOUNT_RATE = 0.1;
@@ -13,6 +14,7 @@ const DISCOUNT_RATE = 0.1;
 export function Reservation() {
   const nav = useNavigate();
   const { lines, subtotal } = useCart();
+  const { selected } = useDelivery();
   const { label } = useCountdown(600);
   const totals = computeTotals(subtotal, subtotal * DISCOUNT_RATE);
 
@@ -87,7 +89,7 @@ export function Reservation() {
               </span>
             </div>
             <p className="mt-1 text-[11px] text-muted">
-              Entrega: {customer.warehouse}
+              Entrega: {selected.label} — {selected.address}
             </p>
           </div>
         </div>

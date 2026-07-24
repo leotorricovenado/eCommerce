@@ -6,6 +6,7 @@ import { Button, ProductThumb } from "@/components/primitives";
 import { productById, customer } from "@/data/catalog";
 import { bs, computeTotals } from "@/lib/format";
 import { useCart } from "@/state/cart";
+import { useDelivery } from "@/state/delivery";
 
 const DISCOUNT_RATE = 0.1;
 
@@ -20,6 +21,7 @@ export function OrderStatus() {
   const nav = useNavigate();
   const { num } = useParams();
   const { lines, subtotal } = useCart();
+  const { selected } = useDelivery();
   const botPhone = import.meta.env.VITE_BOT_WHATSAPP_NUMBER as string | undefined;
   const whatsappHref = botPhone ? `https://wa.me/${botPhone}` : "/";
   const discount = subtotal * DISCOUNT_RATE;
@@ -137,7 +139,8 @@ export function OrderStatus() {
             <dl className="space-y-1 text-muted">
               <Line k="Razón social" v={customer.businessName} />
               <Line k="NIT" v={customer.nit} />
-              <Line k="Entrega" v={customer.deliveryAddress} />
+              <Line k="Punto de entrega" v={selected.label} />
+              <Line k="Dirección" v={selected.address} />
             </dl>
           </div>
 

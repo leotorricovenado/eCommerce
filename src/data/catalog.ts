@@ -218,12 +218,36 @@ export const customer = {
   priceList: "Mayorista A",
   balance: 12450,
   phone: "+591 75 34 60 50",
-  deliveryAddress:
-    "Av. Cañoto #245, Zona Central, Santa Cruz de la Sierra",
-  warehouse: "Centro de Distribución Santa Cruz (CD-SCZ)",
   advisor: { name: "Carlos Mendoza", role: "Asesor Comercial" },
   status: "Cuenta Activa",
 };
+
+// Puntos de entrega del cliente (negocio/tienda/sucursal), identificados por
+// deliveryPointId. El pedido siempre se despacha a uno de estos, nunca a un
+// domicilio libre — ver "Documentación Técnica e-Commerce.docx" sección 1.1/4.1.
+export interface DeliveryPoint {
+  id: number;
+  label: string;
+  address: string;
+}
+
+export const deliveryPoints: DeliveryPoint[] = [
+  {
+    id: 501,
+    label: "Tienda Los Andes - Centro",
+    address: "Av. Cañoto #245, Zona Central, Santa Cruz de la Sierra",
+  },
+  {
+    id: 502,
+    label: "Sucursal Norte",
+    address: "Av. Banzer y Sexto Anillo, Santa Cruz de la Sierra",
+  },
+  {
+    id: 503,
+    label: "Depósito Este",
+    address: "Av. Grigotá y Cuarto Anillo, Santa Cruz de la Sierra",
+  },
+];
 
 // Pedido de ejemplo para las pantallas de estado / historial.
 export const sampleOrderNumber = "VN-2024-001";

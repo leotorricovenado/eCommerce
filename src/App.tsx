@@ -2,6 +2,7 @@ import { createHashRouter, RouterProvider } from "react-router-dom";
 import { CartProvider } from "@/state/cart";
 import { OrderProvider } from "@/state/order";
 import { SessionProvider } from "@/state/session";
+import { DeliveryProvider } from "@/state/delivery";
 import { DeviceFrame } from "@/components/DeviceFrame";
 import { Home } from "@/screens/Home";
 import { Catalog } from "@/screens/Catalog";
@@ -42,9 +43,11 @@ export default function App() {
   return (
     <SessionProvider>
       <CartProvider>
-        <OrderProvider>
-          <RouterProvider router={router} />
-        </OrderProvider>
+        <DeliveryProvider>
+          <OrderProvider>
+            <RouterProvider router={router} />
+          </OrderProvider>
+        </DeliveryProvider>
       </CartProvider>
     </SessionProvider>
   );
