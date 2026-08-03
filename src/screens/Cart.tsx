@@ -1,12 +1,12 @@
-import { useNavigate } from "react-router-dom";
-import { Trash2, Info, ShoppingCart } from "lucide-react";
 import { StatusBar, TopBar } from "@/components/chrome";
+import { DeliveryPointPicker } from "@/components/DeliveryPointPicker";
 import { Screen } from "@/components/DeviceFrame";
 import { Button, ProductThumb, QuantityStepper } from "@/components/primitives";
-import { DeliveryPointPicker } from "@/components/DeliveryPointPicker";
-import { productById, customer } from "@/data/catalog";
+import { customer, productById } from "@/data/catalog";
 import { bs, computeTotals } from "@/lib/format";
 import { useCart } from "@/state/cart";
+import { Info, ShoppingCart, Trash2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const DISCOUNT_RATE = 0.1; // Descuento Mayorista A
 
@@ -123,8 +123,12 @@ export function Cart() {
       </Screen>
 
       <div className="shrink-0 border-t border-hair bg-surface px-4 py-3">
-        <Button size="lg" className="w-full" onClick={() => nav("/reserva")}>
-          Reservar y pagar · {bs(totals.total)}
+        <Button
+          size="lg"
+          className="w-full bg-yellow-500 hover:bg-yellow-600 text-black font-bold"
+          onClick={() => nav("/reserva")}
+        >
+          Calcular precios y descuentos
         </Button>
       </div>
     </>
