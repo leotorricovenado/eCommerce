@@ -195,6 +195,23 @@ export function productById(id: string): Product | undefined {
   return products.find((p) => p.id === id);
 }
 
+// Unidad de venta elegida por el cliente mayorista: por pieza o por caja/bulto cerrado.
+export type CartUnit = "unidad" | "caja";
+
+export function hasBoxOption(p: Product): boolean {
+  return Boolean(p.pricePerBox && p.boxSize);
+}
+
+export function unitPrice(p: Product, unit: CartUnit): number {
+  if (unit === "caja") return p.pricePerBox ?? p.pricePerUnit * (p.boxSize ?? 1);
+  return p.pricePerUnit;
+}
+
+export function unitLabel(unit: CartUnit, p?: Product): string {
+  if (unit === "caja") return p?.boxSize ? `Caja x${p.boxSize}` : "Caja";
+  return "Unidad";
+}
+
 // Las imágenes en public/productos se llaman igual que el nombre del producto.
 export function productImage(p: Product): string {
   return encodeURI(`/productos/${p.name}.webp`);

@@ -41,6 +41,9 @@
   --color-danger: #e33231;
   --color-danger-50: #fdeaea;
 
+  /* Foco (anillo estilo shadcn/ui) */
+  --color-ring: #0b54c9;
+
   --radius-card: 16px;
 }
 

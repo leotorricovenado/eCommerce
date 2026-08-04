@@ -2,8 +2,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Check, FileText, RotateCcw, Info, MessageCircle } from "lucide-react";
 import { StatusBar, TopBar, BottomNav } from "@/components/chrome";
 import { Screen } from "@/components/DeviceFrame";
-import { Button, ProductThumb } from "@/components/primitives";
-import { productById, customer } from "@/data/catalog";
+import { Button, Card, ProductThumb } from "@/components/primitives";
+import { productById, customer, unitLabel, unitPrice } from "@/data/catalog";
 import { bs, computeTotals } from "@/lib/format";
 import { useCart } from "@/state/cart";
 import { useDelivery } from "@/state/delivery";
@@ -55,7 +55,7 @@ export function OrderStatus() {
           </div>
 
           {/* Seguimiento */}
-          <div className="rounded-2xl border border-hair bg-surface p-4">
+          <Card>
             <h3 className="mb-3 font-display text-sm font-bold text-ink">
               Seguimiento
             </h3>
@@ -102,15 +102,15 @@ export function OrderStatus() {
                 </li>
               ))}
             </ol>
-          </div>
+          </Card>
 
           {/* Detalle de ítems */}
-          <div className="rounded-2xl border border-hair bg-surface p-4">
+          <Card>
             <h3 className="mb-3 font-display text-sm font-bold text-ink">
               Detalle de ítems
             </h3>
             <div className="space-y-3">
-              {lines.map(({ id, qty }) => {
+              {lines.map(({ id, qty, unit }) => {
                 const p = productById(id);
                 if (!p) return null;
                 return (
@@ -120,19 +120,21 @@ export function OrderStatus() {
                       <p className="truncate text-[13px] font-semibold text-ink">
                         {p.name}
                       </p>
-                      <p className="text-[11px] text-muted">Cant: {qty}</p>
+                      <p className="text-[11px] text-muted">
+                        Cant: {qty} {unitLabel(unit, p)}
+                      </p>
                     </div>
                     <span className="text-[13px] font-bold text-ink">
-                      {bs(p.pricePerUnit * qty)}
+                      {bs(unitPrice(p, unit) * qty)}
                     </span>
                   </div>
                 );
               })}
             </div>
-          </div>
+          </Card>
 
           {/* Facturación */}
-          <div className="rounded-2xl border border-hair bg-surface p-4 text-sm">
+          <Card className="text-sm">
             <h3 className="mb-2 font-display text-sm font-bold text-ink">
               Datos de facturación
             </h3>
@@ -142,10 +144,10 @@ export function OrderStatus() {
               <Line k="Punto de entrega" v={selected.label} />
               <Line k="Dirección" v={selected.address} />
             </dl>
-          </div>
+          </Card>
 
           {/* Resumen */}
-          <div className="rounded-2xl border border-hair bg-surface p-4">
+          <Card>
             <div className="space-y-1.5 text-sm">
               <div className="flex justify-between text-muted">
                 <span>Subtotal</span>
@@ -168,7 +170,7 @@ export function OrderStatus() {
                 </span>
               </div>
             </div>
-          </div>
+          </Card>
 
           <div className="flex items-start gap-2 rounded-xl bg-brand-50 p-3 text-[12px] text-brand-dark">
             <Info size={16} className="mt-0.5 shrink-0" />
@@ -178,7 +180,7 @@ export function OrderStatus() {
           {botPhone ? (
             <a
               href={whatsappHref}
-              className="flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-semibold text-white"
+              className="flex w-full items-center justify-center gap-2 rounded-lg py-3 text-sm font-medium text-white shadow-xs outline-none transition-colors focus-visible:ring-[3px] focus-visible:ring-ring/50"
               style={{ background: "#25D366" }}
             >
               <MessageCircle size={17} /> Volver al chat de WhatsApp
@@ -186,7 +188,7 @@ export function OrderStatus() {
           ) : (
             <button
               onClick={() => nav("/")}
-              className="flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-semibold text-white"
+              className="flex w-full items-center justify-center gap-2 rounded-lg py-3 text-sm font-medium text-white shadow-xs outline-none transition-colors focus-visible:ring-[3px] focus-visible:ring-ring/50"
               style={{ background: "#25D366" }}
             >
               <MessageCircle size={17} /> Volver al chat de WhatsApp

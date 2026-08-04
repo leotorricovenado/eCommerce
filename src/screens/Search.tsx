@@ -29,12 +29,12 @@ export function Search() {
       <header className="flex items-center gap-2 border-b border-hair bg-surface px-3 py-2">
         <button
           onClick={() => nav(-1)}
-          className="grid h-9 w-9 place-items-center rounded-full text-ink hover:bg-canvas"
+          className="grid h-9 w-9 place-items-center rounded-full text-ink outline-none transition-colors hover:bg-canvas focus-visible:ring-[3px] focus-visible:ring-ring/50"
           aria-label="Volver"
         >
           <ChevronLeft size={22} />
         </button>
-        <div className="flex flex-1 items-center gap-2 rounded-xl bg-canvas px-3 py-2">
+        <div className="flex h-10 flex-1 items-center gap-2 rounded-lg border border-line bg-surface px-3 shadow-xs transition-colors focus-within:border-brand focus-within:ring-[3px] focus-within:ring-ring/50">
           <SearchIcon size={17} className="text-muted" />
           <input
             autoFocus
@@ -44,7 +44,11 @@ export function Search() {
             className="w-full bg-transparent text-sm text-ink outline-none placeholder:text-muted"
           />
           {q && (
-            <button onClick={() => setQ("")} aria-label="Limpiar">
+            <button
+              onClick={() => setQ("")}
+              className="rounded-full outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+              aria-label="Limpiar"
+            >
               <X size={16} className="text-muted" />
             </button>
           )}
@@ -62,7 +66,7 @@ export function Search() {
                 <button
                   key={r}
                   onClick={() => setQ(r)}
-                  className="rounded-full border border-line bg-surface px-3 py-1.5 text-[13px] font-medium text-ink"
+                  className="rounded-full border border-line bg-surface px-3 py-1.5 text-[13px] font-medium text-ink shadow-xs outline-none transition-colors hover:bg-canvas focus-visible:ring-[3px] focus-visible:ring-ring/50"
                 >
                   {r}
                 </button>
@@ -83,7 +87,7 @@ export function Search() {
               <button
                 key={p.id}
                 onClick={() => nav(`/producto/${p.id}`)}
-                className="flex w-full items-center gap-3 bg-surface px-4 py-3 text-left"
+                className="flex w-full items-center gap-3 bg-surface px-4 py-3 text-left outline-none transition-colors hover:bg-canvas focus-visible:ring-[3px] focus-visible:ring-ring/50"
               >
                 <ProductThumb product={p} className="h-12 w-12 shrink-0" />
                 <div className="min-w-0 flex-1">

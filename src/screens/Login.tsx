@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { MessageCircle, ArrowRight } from "lucide-react";
 import { StatusBar, VenadoLogo } from "@/components/chrome";
 import { Screen } from "@/components/DeviceFrame";
-import { Button } from "@/components/primitives";
+import { Button, Card } from "@/components/primitives";
 import { customer } from "@/data/catalog";
 import { useSession } from "@/state/session";
 
@@ -29,7 +29,7 @@ export function Login() {
               Abriste este catálogo desde WhatsApp
             </div>
 
-            <div className="mt-6 w-full rounded-2xl border border-hair bg-canvas p-4 text-left">
+            <Card className="mt-6 w-full bg-canvas text-left">
               <p className="text-[11px] font-medium text-muted">
                 Te identificamos por tu número
               </p>
@@ -39,7 +39,7 @@ export function Login() {
               <p className="mt-1 text-[13px] text-muted">
                 {customer.businessName} · {customer.code}
               </p>
-            </div>
+            </Card>
           </div>
 
           <div>

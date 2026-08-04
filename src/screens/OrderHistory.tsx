@@ -44,7 +44,7 @@ export function OrderHistory() {
               <button
                 key={o.num}
                 onClick={() => nav(`/pedido/${o.num}`)}
-                className="flex w-full items-center gap-3 rounded-2xl border border-hair bg-surface p-4 text-left"
+                className="flex w-full items-center gap-3 rounded-2xl border border-hair bg-surface p-4 text-left shadow-xs outline-none transition-colors hover:bg-canvas focus-visible:ring-[3px] focus-visible:ring-ring/50"
               >
                 <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-brand-50 text-brand">
                   <Receipt size={20} />

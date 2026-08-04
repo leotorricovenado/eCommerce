@@ -1,5 +1,6 @@
 import { BottomNav, StatusBar, TopBar } from "@/components/chrome";
 import { Screen } from "@/components/DeviceFrame";
+import { Button, Card } from "@/components/primitives";
 import { customer } from "@/data/catalog";
 import { bs } from "@/lib/format";
 import {
@@ -32,7 +33,7 @@ export function Profile() {
       <Screen className="bg-canvas">
         <div className="space-y-4 p-4">
           {/* Cliente */}
-          <div className="rounded-2xl border border-hair bg-surface p-4">
+          <Card>
             <div className="flex items-start justify-between">
               <div>
                 <h2 className="font-display text-lg font-bold text-ink">
@@ -58,7 +59,7 @@ export function Profile() {
                 value={customer.priceList}
               />
             </div>
-          </div>
+          </Card>
 
           {/* Logística */}
           <Section title="Información cliente">
@@ -74,7 +75,7 @@ export function Profile() {
             <h3 className="mb-2 px-1 text-xs font-bold uppercase tracking-wide text-muted">
               Puntos de entrega
             </h3>
-            <div className="divide-y divide-hair overflow-hidden rounded-2xl border border-hair bg-surface">
+            <Card padding="" className="divide-y divide-hair overflow-hidden">
               {points.map((p) => {
                 const active = p.id === selectedId;
                 return (
@@ -82,7 +83,7 @@ export function Profile() {
                     key={p.id}
                     type="button"
                     onClick={() => select(p.id)}
-                    className="flex w-full items-start gap-3 p-4 text-left"
+                    className="flex w-full items-start gap-3 p-4 text-left outline-none transition-colors hover:bg-canvas focus-visible:ring-[3px] focus-visible:ring-ring/50"
                   >
                     <span className="mt-0.5 text-brand">
                       <MapPin size={16} />
@@ -108,7 +109,7 @@ export function Profile() {
                   </button>
                 );
               })}
-            </div>
+            </Card>
             <p className="mt-1.5 px-1 text-[11px] text-muted">
               Los pedidos se despachan al punto de entrega elegido en el carrito.
             </p>
@@ -116,7 +117,7 @@ export function Profile() {
 
           {/* Asesor */}
           <Section title="Información del asesor">
-            <div className="flex items-center gap-3 rounded-2xl border border-hair bg-surface p-4">
+            <div className="flex items-center gap-3 p-4">
               <span className="grid h-11 w-11 place-items-center rounded-full bg-brand-50 text-brand">
                 <MessageCircleMore size={20} />
               </span>
@@ -126,7 +127,10 @@ export function Profile() {
                 </p>
                 <p className="text-xs text-muted">{customer.advisor.role}</p>
               </div>
-              <button className="grid h-9 w-9 place-items-center rounded-full bg-brand text-white">
+              <button
+                className="grid h-9 w-9 place-items-center rounded-full bg-brand text-white outline-none transition-colors hover:bg-brand-dark focus-visible:ring-[3px] focus-visible:ring-ring/50"
+                aria-label="Enviar mensaje"
+              >
                 <Mail size={16} />
               </button>
             </div>
@@ -142,12 +146,14 @@ export function Profile() {
             />
           </Section>
 
-          <button
+          <Button
+            variant="outline"
+            size="lg"
+            className="w-full text-danger"
             onClick={() => nav("/login")}
-            className="flex w-full items-center justify-center gap-2 rounded-xl border border-line bg-surface py-3 text-sm font-semibold text-danger"
           >
             <LogOut size={17} /> Cerrar sesión
-          </button>
+          </Button>
         </div>
       </Screen>
       <BottomNav />
@@ -167,9 +173,9 @@ function Section({
       <h3 className="mb-2 px-1 text-xs font-bold uppercase tracking-wide text-muted">
         {title}
       </h3>
-      <div className="divide-y divide-hair overflow-hidden rounded-2xl border border-hair bg-surface">
+      <Card padding="" className="divide-y divide-hair overflow-hidden">
         {children}
-      </div>
+      </Card>
     </div>
   );
 }
@@ -233,7 +239,7 @@ function Toggle({
       </div>
       <button
         onClick={() => onChange(!on)}
-        className={`relative h-6 w-11 shrink-0 rounded-full transition-colors ${
+        className={`relative h-6 w-11 shrink-0 rounded-full outline-none transition-colors focus-visible:ring-[3px] focus-visible:ring-ring/50 ${
           on ? "bg-brand" : "bg-gray"
         }`}
         aria-pressed={on}

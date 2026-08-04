@@ -104,7 +104,7 @@ export function TopBar({
         {onBack && (
           <button
             onClick={onBack}
-            className="-ml-1 grid h-9 w-9 place-items-center rounded-full text-ink hover:bg-canvas"
+            className="-ml-1 grid h-9 w-9 place-items-center rounded-full text-ink outline-none transition-colors hover:bg-canvas focus-visible:ring-[3px] focus-visible:ring-ring/50"
             aria-label="Volver"
           >
             <ChevronLeft size={22} />
@@ -123,7 +123,7 @@ export function TopBar({
         {showCart && (
           <button
             onClick={() => nav("/carrito")}
-            className="relative grid h-10 w-10 place-items-center rounded-full text-ink hover:bg-canvas"
+            className="relative grid h-10 w-10 place-items-center rounded-full text-ink outline-none transition-colors hover:bg-canvas focus-visible:ring-[3px] focus-visible:ring-ring/50"
             aria-label="Ver carrito"
           >
             <ShoppingCart size={21} />
@@ -156,7 +156,7 @@ export function BottomNav() {
           key={to}
           to={to}
           end={end}
-          className="group flex flex-1 flex-col items-center gap-0.5 rounded-lg py-1 text-muted aria-[current=page]:text-brand"
+          className="group flex flex-1 flex-col items-center gap-0.5 rounded-lg py-1 text-muted outline-none transition-colors aria-[current=page]:text-brand focus-visible:ring-[3px] focus-visible:ring-ring/50"
         >
           <Icon size={22} />
           <span className="text-[11px] font-semibold">{label}</span>

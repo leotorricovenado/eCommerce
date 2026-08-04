@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { Search, LayoutGrid, ShoppingCart, Receipt } from "lucide-react";
 import { StatusBar, TopBar, BottomNav } from "@/components/chrome";
 import { Screen } from "@/components/DeviceFrame";
+import { Card } from "@/components/primitives";
 import { ProductCard } from "@/components/ProductCard";
 import {
   categories,
@@ -36,7 +37,7 @@ export function Home() {
 
           <button
             onClick={() => nav("/buscar")}
-            className="flex w-full items-center gap-2 rounded-xl border border-line bg-surface px-4 py-3 text-left text-sm text-muted"
+            className="flex h-11 w-full items-center gap-2 rounded-lg border border-line bg-surface px-4 text-left text-sm text-muted shadow-xs outline-none transition-colors focus-visible:border-brand focus-visible:ring-[3px] focus-visible:ring-ring/50"
           >
             <Search size={18} />
             Buscar productos…
@@ -47,7 +48,7 @@ export function Home() {
               <button
                 key={to}
                 onClick={() => nav(to)}
-                className="flex flex-col items-center gap-2 rounded-2xl border border-hair bg-surface p-3"
+                className="flex flex-col items-center gap-2 rounded-2xl border border-hair bg-surface p-3 shadow-xs outline-none transition-colors hover:bg-canvas focus-visible:ring-[3px] focus-visible:ring-ring/50"
               >
                 <span
                   className={`grid h-11 w-11 place-items-center rounded-xl text-white ${tint}`}
@@ -108,16 +109,17 @@ export function Home() {
             </h3>
             <div className="grid grid-cols-3 gap-3">
               {brands.map((b) => (
-                <div
+                <Card
                   key={b}
-                  className="grid h-16 place-items-center rounded-2xl border border-hair bg-surface p-3"
+                  padding="p-4"
+                  className="grid aspect-square place-items-center"
                 >
                   <img
                     src={brandLogo[b]}
                     alt={b}
                     className="max-h-full max-w-full object-contain"
                   />
-                </div>
+                </Card>
               ))}
             </div>
           </section>

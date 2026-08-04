@@ -16,7 +16,7 @@ export function Categories() {
             <button
               key={c.key}
               onClick={() => nav(`/catalogo?cat=${c.key}`)}
-              className={`flex h-32 flex-col justify-between rounded-2xl p-4 text-left ${catSolidBg[c.key]} ${catText[c.key]}`}
+              className={`flex h-32 flex-col justify-between rounded-2xl p-4 text-left shadow-xs outline-none transition-transform focus-visible:ring-[3px] focus-visible:ring-ring/50 active:scale-[0.98] ${catSolidBg[c.key]} ${catText[c.key]}`}
             >
               <ChevronRight size={20} className="self-end opacity-80" />
               <div>

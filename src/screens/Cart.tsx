@@ -1,8 +1,15 @@
+import type { ReactNode } from "react";
 import { StatusBar, TopBar } from "@/components/chrome";
 import { DeliveryPointPicker } from "@/components/DeliveryPointPicker";
 import { Screen } from "@/components/DeviceFrame";
-import { Button, ProductThumb, QuantityStepper } from "@/components/primitives";
-import { customer, productById } from "@/data/catalog";
+import { Button, Card, ProductThumb, QuantityStepper } from "@/components/primitives";
+import {
+  customer,
+  hasBoxOption,
+  productById,
+  unitLabel,
+  unitPrice,
+} from "@/data/catalog";
 import { bs, computeTotals } from "@/lib/format";
 import { useCart } from "@/state/cart";
 import { Info, ShoppingCart, Trash2 } from "lucide-react";
@@ -12,7 +19,7 @@ const DISCOUNT_RATE = 0.1; // Descuento Mayorista A
 
 export function Cart() {
   const nav = useNavigate();
-  const { lines, setQty, remove, subtotal, count } = useCart();
+  const { lines, setQty, setUnit, remove, subtotal, count } = useCart();
   const discount = subtotal * DISCOUNT_RATE;
   const totals = computeTotals(subtotal, discount);
 
@@ -51,14 +58,12 @@ export function Cart() {
             {count} artículos seleccionados
           </p>
           <div className="space-y-3">
-            {lines.map(({ id, qty }) => {
+            {lines.map(({ id, qty, unit }) => {
               const p = productById(id);
               if (!p) return null;
+              const price = unitPrice(p, unit);
               return (
-                <div
-                  key={id}
-                  className="flex gap-3 rounded-2xl border border-hair bg-surface p-3"
-                >
+                <Card key={id} padding="p-3" className="flex gap-3">
                   <ProductThumb product={p} className="h-16 w-16 shrink-0" />
                   <div className="flex min-w-0 flex-1 flex-col">
                     <p className="text-[10px] font-bold uppercase text-muted">
@@ -67,6 +72,27 @@ export function Cart() {
                     <p className="truncate text-sm font-semibold text-ink">
                       {p.name}
                     </p>
+                    <p className="text-[11px] text-muted">
+                      {unitLabel(unit, p)} · {bs(price)} c/{unit === "caja" ? "caja" : "u"}
+                    </p>
+
+                    {hasBoxOption(p) && (
+                      <div className="mt-1.5 inline-flex w-fit rounded-lg border border-line bg-canvas p-0.5 text-[10px] font-semibold">
+                        <UnitPill
+                          active={unit === "unidad"}
+                          onClick={() => setUnit(id, "unidad")}
+                        >
+                          Unidad
+                        </UnitPill>
+                        <UnitPill
+                          active={unit === "caja"}
+                          onClick={() => setUnit(id, "caja")}
+                        >
+                          Caja x{p.boxSize}
+                        </UnitPill>
+                      </div>
+                    )}
+
                     <div className="mt-auto flex items-center justify-between pt-2">
                       <QuantityStepper
                         size="sm"
@@ -74,7 +100,7 @@ export function Cart() {
                         onChange={(v) => setQty(id, v)}
                       />
                       <span className="font-display text-sm font-bold text-ink">
-                        {bs(p.pricePerUnit * qty)}
+                        {bs(price * qty)}
                       </span>
                     </div>
                   </div>
@@ -85,7 +111,7 @@ export function Cart() {
                   >
                     <Trash2 size={17} />
                   </button>
-                </div>
+                </Card>
               );
             })}
           </div>
@@ -101,24 +127,29 @@ export function Cart() {
           </div>
 
           {/* Resumen */}
-          <div className="mt-4 space-y-2 rounded-2xl border border-hair bg-surface p-4">
-            <Row label="Subtotal" value={bs(totals.subtotal)} />
-            <Row
-              label={`Descuento ${customer.priceList} (10%)`}
-              value={`- ${bs(discount)}`}
-              accent
-            />
-            <Row label="IVA 13% (incluido)" value={bs(totals.iva)} muted />
-            <div className="my-1 border-t border-hair" />
-            <div className="flex items-center justify-between">
-              <span className="font-display text-base font-bold text-ink">
-                Total
-              </span>
-              <span className="font-display text-lg font-extrabold text-ink">
-                {bs(totals.total)}
-              </span>
+          <Card className="mt-4">
+            <h3 className="mb-3 font-display text-sm font-bold text-ink">
+              Resumen de precios y descuentos
+            </h3>
+            <div className="grid grid-cols-2 gap-2">
+              <TotalBox label="Total Bruto (Bs.)" value={bs(totals.subtotal)} />
+              <TotalBox
+                label={`Total Desct. (Bs.)`}
+                value={`- ${bs(discount)}`}
+              />
             </div>
-          </div>
+            <div className="mt-2">
+              <TotalBox
+                label="Total Neto (Bs.)"
+                value={bs(totals.total)}
+                emphasis
+              />
+            </div>
+            <p className="mt-2 text-[11px] text-muted">
+              {customer.priceList} (10% desc.) — IVA 13% incluido en el
+              precio.
+            </p>
+          </Card>
         </div>
       </Screen>
 
@@ -135,27 +166,49 @@ export function Cart() {
   );
 }
 
-function Row({
+function UnitPill({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`rounded-md px-2 py-1 outline-none transition-colors focus-visible:ring-[3px] focus-visible:ring-ring/50 ${
+        active ? "bg-brand text-white" : "text-muted hover:text-ink"
+      }`}
+    >
+      {children}
+    </button>
+  );
+}
+
+function TotalBox({
   label,
   value,
-  accent,
-  muted,
+  emphasis,
 }: {
   label: string;
   value: string;
-  accent?: boolean;
-  muted?: boolean;
+  emphasis?: boolean;
 }) {
   return (
-    <div className="flex items-center justify-between text-sm">
-      <span className="text-muted">{label}</span>
-      <span
-        className={`font-semibold tabular-nums ${
-          accent ? "text-success" : muted ? "text-muted" : "text-ink"
+    <div>
+      <p className="mb-1 text-[11px] font-bold text-brand">{label}</p>
+      <div
+        className={`rounded-lg border border-hair bg-canvas px-3 py-2 text-right tabular-nums ${
+          emphasis
+            ? "font-display text-lg font-extrabold text-ink"
+            : "text-sm font-semibold text-ink"
         }`}
       >
         {value}
-      </span>
+      </div>
     </div>
   );
 }

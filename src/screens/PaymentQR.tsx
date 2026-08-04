@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { ShieldCheck, Clock } from "lucide-react";
 import { StatusBar, TopBar } from "@/components/chrome";
 import { Screen } from "@/components/DeviceFrame";
-import { Button } from "@/components/primitives";
+import { Button, Card } from "@/components/primitives";
 import { QRPlaceholder } from "@/components/QRPlaceholder";
 import { bs, computeTotals } from "@/lib/format";
 import { useCart } from "@/state/cart";
@@ -47,9 +47,9 @@ export function PaymentQR() {
             {bs(totals.total)}
           </p>
 
-          <div className="mt-5 rounded-3xl border border-hair bg-surface p-5 shadow-sm">
+          <Card padding="p-5" className="mt-5 rounded-3xl">
             <QRPlaceholder size={196} />
-          </div>
+          </Card>
 
           <p className="mt-4 max-w-[16rem] text-sm text-muted">
             Escaneá este código con la app de tu banco o billetera digital.

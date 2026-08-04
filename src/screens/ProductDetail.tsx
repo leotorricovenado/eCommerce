@@ -2,9 +2,16 @@ import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { StatusBar, TopBar } from "@/components/chrome";
 import { Screen } from "@/components/DeviceFrame";
-import { Button, ProductThumb, StockBadge, QuantityStepper } from "@/components/primitives";
+import { Button, Card, ProductThumb, StockBadge, QuantityStepper } from "@/components/primitives";
 import { ProductCard } from "@/components/ProductCard";
-import { productById, products } from "@/data/catalog";
+import {
+  hasBoxOption,
+  productById,
+  products,
+  unitLabel,
+  unitPrice,
+  type CartUnit,
+} from "@/data/catalog";
 import { bs } from "@/lib/format";
 import { useCart } from "@/state/cart";
 
@@ -13,6 +20,7 @@ export function ProductDetail() {
   const nav = useNavigate();
   const product = id ? productById(id) : undefined;
   const { add } = useCart();
+  const [unit, setUnit] = useState<CartUnit>("unidad");
   const [qty, setQty] = useState(1);
 
   if (!product) {
@@ -65,25 +73,69 @@ export function ProductDetail() {
           <div className="flex items-center justify-between">
             <div>
               <p className="font-display text-2xl font-extrabold text-ink">
-                {bs(product.pricePerUnit)}
+                {bs(unitPrice(product, unit))}
               </p>
               <p className="text-xs text-muted">
-                por unidad
-                {product.pricePerBox &&
+                {unitLabel(unit, product)}
+                {unit === "unidad" &&
+                  product.pricePerBox &&
                   ` · ${bs(product.pricePerBox)} el bulto de ${product.boxSize}`}
               </p>
             </div>
             <StockBadge level={product.stock} />
           </div>
 
-          <div className="rounded-2xl border border-hair bg-surface p-4">
+          {hasBoxOption(product) && (
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setUnit("unidad");
+                  setQty(1);
+                }}
+                className={`flex-1 rounded-lg border px-3 py-2 text-center shadow-xs outline-none transition-colors focus-visible:ring-[3px] focus-visible:ring-ring/50 ${
+                  unit === "unidad"
+                    ? "border-brand bg-brand-50 text-brand"
+                    : "border-line bg-surface text-muted"
+                }`}
+              >
+                <span className="block text-sm font-semibold">
+                  Por unidad
+                </span>
+                <span className="block text-xs">
+                  {bs(product.pricePerUnit)} c/u
+                </span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setUnit("caja");
+                  setQty(1);
+                }}
+                className={`flex-1 rounded-lg border px-3 py-2 text-center shadow-xs outline-none transition-colors focus-visible:ring-[3px] focus-visible:ring-ring/50 ${
+                  unit === "caja"
+                    ? "border-brand bg-brand-50 text-brand"
+                    : "border-line bg-surface text-muted"
+                }`}
+              >
+                <span className="block text-sm font-semibold">
+                  Por caja (x{product.boxSize})
+                </span>
+                <span className="block text-xs">
+                  {bs(product.pricePerBox!)} c/caja
+                </span>
+              </button>
+            </div>
+          )}
+
+          <Card>
             <h3 className="mb-1 font-display text-sm font-bold text-ink">
               Detalles de producto
             </h3>
             <p className="text-sm leading-relaxed text-muted">
               {product.description}
             </p>
-          </div>
+          </Card>
 
           {related.length > 0 && (
             <section>
@@ -108,11 +160,13 @@ export function ProductDetail() {
           className="flex-1"
           disabled={out}
           onClick={() => {
-            add(product.id, qty);
+            add(product.id, qty, unit);
             nav("/carrito");
           }}
         >
-          {out ? "Sin stock" : "Agregar al carrito"}
+          {out
+            ? "Sin stock"
+            : `Agregar · ${bs(unitPrice(product, unit) * qty)}`}
         </Button>
       </div>
     </>

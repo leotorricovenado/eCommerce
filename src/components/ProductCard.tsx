@@ -1,18 +1,19 @@
 import { useNavigate } from "react-router-dom";
-import { Plus, Check } from "lucide-react";
+import { Minus, Plus, Trash2 } from "lucide-react";
 import type { Product } from "@/data/catalog";
 import { bs } from "@/lib/format";
 import { useCart } from "@/state/cart";
-import { ProductThumb, StockBadge } from "@/components/primitives";
+import { Card, ProductThumb, StockBadge } from "@/components/primitives";
 
 export function ProductCard({ product }: { product: Product }) {
   const nav = useNavigate();
-  const { items, add } = useCart();
-  const inCart = (items[product.id] ?? 0) > 0;
+  const { items, add, setQty, remove } = useCart();
+  const line = items[product.id];
+  const inCart = (line?.qty ?? 0) > 0;
   const out = product.stock === "out";
 
   return (
-    <div className="flex flex-col overflow-hidden rounded-2xl border border-hair bg-surface">
+    <Card padding="" className="flex flex-col overflow-hidden">
       <button
         onClick={() => nav(`/producto/${product.id}`)}
         className="relative aspect-square w-full p-3 text-left"
@@ -34,29 +35,60 @@ export function ProductCard({ product }: { product: Product }) {
           {product.name}
         </button>
 
-        <div className="mt-auto flex items-end justify-between pt-2">
+        <div className="mt-auto pt-2">
           <div className="leading-tight">
             <p className="font-display text-[15px] font-bold text-ink">
               {bs(product.pricePerUnit)}
             </p>
             <p className="text-[10px] text-muted">por unidad</p>
           </div>
-          <button
-            onClick={() => !out && add(product.id)}
-            disabled={out}
-            className={`grid h-9 w-9 place-items-center rounded-xl transition-colors ${
-              out
-                ? "cursor-not-allowed bg-canvas text-gray"
-                : inCart
-                  ? "bg-success text-white"
-                  : "bg-brand text-white hover:bg-brand-dark"
-            }`}
-            aria-label={inCart ? "En el carrito" : "Agregar"}
-          >
-            {inCart ? <Check size={18} /> : <Plus size={18} />}
-          </button>
+
+          <div className="mt-2">
+            {out ? (
+              <div className="grid h-9 w-full place-items-center rounded-lg border border-line bg-canvas text-[11px] font-medium text-muted">
+                Sin stock
+              </div>
+            ) : inCart && line ? (
+              <div className="flex h-9 items-center justify-between rounded-full border-2 border-brand bg-surface pl-1 pr-1 shadow-xs">
+                <button
+                  onClick={() =>
+                    line.qty > 1
+                      ? setQty(product.id, line.qty - 1)
+                      : remove(product.id)
+                  }
+                  className="grid h-7 w-7 shrink-0 place-items-center rounded-full text-brand outline-none transition-colors hover:bg-brand-50 focus-visible:ring-[3px] focus-visible:ring-ring/50"
+                  aria-label={line.qty > 1 ? "Quitar uno" : "Quitar del carrito"}
+                >
+                  {line.qty > 1 ? <Minus size={14} /> : <Trash2 size={14} />}
+                </button>
+                <span className="min-w-0 flex-1 truncate text-center text-[11px] font-semibold leading-none text-ink">
+                  {line.qty}{" "}
+                  {line.unit === "caja"
+                    ? line.qty > 1
+                      ? "cajas"
+                      : "caja"
+                    : "und."}
+                </span>
+                <button
+                  onClick={() => add(product.id)}
+                  className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-brand text-white outline-none transition-colors hover:bg-brand-dark focus-visible:ring-[3px] focus-visible:ring-ring/50"
+                  aria-label="Agregar uno más"
+                >
+                  <Plus size={14} />
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => add(product.id, 1, "unidad")}
+                className="grid h-9 w-full place-items-center rounded-lg bg-brand text-white shadow-xs outline-none transition-colors hover:bg-brand-dark focus-visible:ring-[3px] focus-visible:ring-ring/50"
+                aria-label="Agregar"
+              >
+                <Plus size={18} />
+              </button>
+            )}
+          </div>
         </div>
       </div>
-    </div>
+    </Card>
   );
 }

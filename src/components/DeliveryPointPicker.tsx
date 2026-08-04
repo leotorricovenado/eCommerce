@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { ChevronDown, MapPin } from "lucide-react";
+import { Card } from "@/components/primitives";
 import { useDelivery } from "@/state/delivery";
 
 /**
@@ -12,11 +13,11 @@ export function DeliveryPointPicker() {
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="rounded-2xl border border-hair bg-surface p-4">
+    <Card>
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex w-full items-start gap-3 text-left"
+        className="flex w-full items-start gap-3 rounded-lg text-left outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
         aria-expanded={open}
       >
         <span className="mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-full bg-brand-50 text-brand">
@@ -49,7 +50,7 @@ export function DeliveryPointPicker() {
                   select(p.id);
                   setOpen(false);
                 }}
-                className={`flex w-full items-start gap-3 rounded-xl p-2.5 text-left transition-colors ${
+                className={`flex w-full items-start gap-3 rounded-lg p-2.5 text-left outline-none transition-colors focus-visible:ring-[3px] focus-visible:ring-ring/50 ${
                   active ? "bg-brand-50" : "hover:bg-canvas"
                 }`}
               >
@@ -71,7 +72,7 @@ export function DeliveryPointPicker() {
           })}
         </div>
       )}
-    </div>
+    </Card>
   );
 }
 

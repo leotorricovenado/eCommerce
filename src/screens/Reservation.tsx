@@ -1,9 +1,9 @@
 import { useNavigate } from "react-router-dom";
-import { Check, Clock, AlertTriangle } from "lucide-react";
+import { Check, Clock, AlertTriangle, Gift } from "lucide-react";
 import { StatusBar } from "@/components/chrome";
 import { Screen } from "@/components/DeviceFrame";
-import { Button, ProductThumb } from "@/components/primitives";
-import { productById } from "@/data/catalog";
+import { Button, Card, ProductThumb } from "@/components/primitives";
+import { productById, unitLabel, unitPrice } from "@/data/catalog";
 import { bs, computeTotals } from "@/lib/format";
 import { useCart } from "@/state/cart";
 import { useDelivery } from "@/state/delivery";
@@ -11,12 +11,19 @@ import { useCountdown } from "@/lib/useCountdown";
 
 const DISCOUNT_RATE = 0.1;
 
+// Bonificación de ejemplo: al llevar la mayonesa 1kg, se regala un ketchup.
+// Mock fijo — en producción esta regla la resuelve el motor de PriceRules de DEAL.
+const BONUS_RULE = { triggerId: "mayonesa-1k", giftId: "ketchup-985" };
+
 export function Reservation() {
   const nav = useNavigate();
   const { lines, subtotal } = useCart();
   const { selected } = useDelivery();
   const { label } = useCountdown(600);
   const totals = computeTotals(subtotal, subtotal * DISCOUNT_RATE);
+  const bonusGift = lines.some((l) => l.id === BONUS_RULE.triggerId)
+    ? productById(BONUS_RULE.giftId)
+    : undefined;
 
   return (
     <>
@@ -37,14 +44,14 @@ export function Reservation() {
           </div>
 
           {/* Contador */}
-          <div className="flex flex-col items-center rounded-2xl border border-hair bg-surface py-5">
+          <Card padding="py-5" className="flex flex-col items-center">
             <span className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-muted">
               <Clock size={14} /> Tiempo para pagar
             </span>
             <span className="mt-1 font-display text-5xl font-extrabold tabular-nums text-brand">
               {label}
             </span>
-          </div>
+          </Card>
 
           {/* Aviso */}
           <div className="flex items-start gap-2 rounded-xl bg-warning-50 p-3 text-[12px] text-[#8a6d00]">
@@ -56,12 +63,12 @@ export function Reservation() {
           </div>
 
           {/* Resumen */}
-          <div className="rounded-2xl border border-hair bg-surface p-4">
+          <Card>
             <h3 className="mb-3 font-display text-sm font-bold text-ink">
               Resumen del pedido
             </h3>
             <div className="space-y-3">
-              {lines.map(({ id, qty }) => {
+              {lines.map(({ id, qty, unit }) => {
                 const p = productById(id);
                 if (!p) return null;
                 return (
@@ -71,14 +78,36 @@ export function Reservation() {
                       <p className="truncate text-[13px] font-semibold text-ink">
                         {p.name}
                       </p>
-                      <p className="text-[11px] text-muted">Cant: {qty}</p>
+                      <p className="text-[11px] text-muted">
+                        Cant: {qty} {unitLabel(unit, p)}
+                      </p>
                     </div>
                     <span className="text-[13px] font-bold text-ink">
-                      {bs(p.pricePerUnit * qty)}
+                      {bs(unitPrice(p, unit) * qty)}
                     </span>
                   </div>
                 );
               })}
+              {bonusGift && (
+                <div className="flex items-center gap-3 rounded-xl border-2 border-success bg-success-50 p-2">
+                  <ProductThumb
+                    product={bonusGift}
+                    className="h-11 w-11 shrink-0"
+                  />
+                  <div className="min-w-0 flex-1">
+                    <p className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wide text-success">
+                      <Gift size={12} /> Bonificación
+                    </p>
+                    <p className="truncate text-[13px] font-semibold text-ink">
+                      {bonusGift.name}
+                    </p>
+                    <p className="text-[11px] text-muted">Cant: 1 — de regalo</p>
+                  </div>
+                  <span className="text-[13px] font-bold text-success">
+                    Gratis
+                  </span>
+                </div>
+              )}
             </div>
             <div className="mt-3 flex items-center justify-between border-t border-hair pt-3">
               <span className="font-display text-sm font-bold text-ink">
@@ -91,7 +120,7 @@ export function Reservation() {
             <p className="mt-1 text-[11px] text-muted">
               Entrega: {selected.label} — {selected.address}
             </p>
-          </div>
+          </Card>
         </div>
       </Screen>
 
