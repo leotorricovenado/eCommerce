@@ -10,9 +10,10 @@ import {
   unitLabel,
   unitPrice,
 } from "@/data/catalog";
+import { getBonusGift } from "@/data/promotions";
 import { bs, computeTotals } from "@/lib/format";
 import { useCart } from "@/state/cart";
-import { Info, ShoppingCart, Trash2 } from "lucide-react";
+import { Gift, Info, ShoppingCart, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const DISCOUNT_RATE = 0.1; // Descuento Mayorista A
@@ -22,6 +23,7 @@ export function Cart() {
   const { lines, setQty, setUnit, remove, subtotal, count } = useCart();
   const discount = subtotal * DISCOUNT_RATE;
   const totals = computeTotals(subtotal, discount);
+  const bonusGift = getBonusGift(lines);
 
   if (count === 0) {
     return (
@@ -114,6 +116,23 @@ export function Cart() {
                 </Card>
               );
             })}
+            {bonusGift && (
+              <div className="flex items-center gap-3 rounded-2xl border-2 border-success bg-success-50 p-3 shadow-xs">
+                <ProductThumb product={bonusGift} className="h-16 w-16 shrink-0" />
+                <div className="min-w-0 flex-1">
+                  <p className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wide text-success">
+                    <Gift size={12} /> Bonificación por tu pedido
+                  </p>
+                  <p className="truncate text-sm font-semibold text-ink">
+                    {bonusGift.name}
+                  </p>
+                  <p className="text-[11px] text-muted">Cant: 1 — de regalo</p>
+                </div>
+                <span className="font-display text-sm font-bold text-success">
+                  Gratis
+                </span>
+              </div>
+            )}
           </div>
 
           <div className="mt-3 flex items-start gap-2 rounded-xl bg-brand-50 p-3 text-[12px] text-brand-dark">
@@ -159,7 +178,7 @@ export function Cart() {
           className="w-full bg-yellow-500 hover:bg-yellow-600 text-black font-bold"
           onClick={() => nav("/reserva")}
         >
-          Calcular precios y descuentos
+          Confirmar y reservar
         </Button>
       </div>
     </>

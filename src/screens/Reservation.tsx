@@ -4,6 +4,7 @@ import { StatusBar } from "@/components/chrome";
 import { Screen } from "@/components/DeviceFrame";
 import { Button, Card, ProductThumb } from "@/components/primitives";
 import { productById, unitLabel, unitPrice } from "@/data/catalog";
+import { getBonusGift } from "@/data/promotions";
 import { bs, computeTotals } from "@/lib/format";
 import { useCart } from "@/state/cart";
 import { useDelivery } from "@/state/delivery";
@@ -11,19 +12,13 @@ import { useCountdown } from "@/lib/useCountdown";
 
 const DISCOUNT_RATE = 0.1;
 
-// Bonificación de ejemplo: al llevar la mayonesa 1kg, se regala un ketchup.
-// Mock fijo — en producción esta regla la resuelve el motor de PriceRules de DEAL.
-const BONUS_RULE = { triggerId: "mayonesa-1k", giftId: "ketchup-985" };
-
 export function Reservation() {
   const nav = useNavigate();
   const { lines, subtotal } = useCart();
   const { selected } = useDelivery();
   const { label } = useCountdown(600);
   const totals = computeTotals(subtotal, subtotal * DISCOUNT_RATE);
-  const bonusGift = lines.some((l) => l.id === BONUS_RULE.triggerId)
-    ? productById(BONUS_RULE.giftId)
-    : undefined;
+  const bonusGift = getBonusGift(lines);
 
   return (
     <>

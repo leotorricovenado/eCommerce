@@ -13,12 +13,17 @@ import {
   ChevronRight,
   Loader2,
   CircleCheckBig,
+  ShoppingCart,
+  Wallet,
+  Receipt,
 } from "lucide-react";
 import { StatusBar, VenadoLogo } from "@/components/chrome";
 import { customer } from "@/data/catalog";
+import { debtById, totalDebt } from "@/data/debts";
 import { bs } from "@/lib/format";
 import { useOrder } from "@/state/order";
 import { useDelivery } from "@/state/delivery";
+import { useDebts } from "@/state/debts";
 
 // Colores WhatsApp (modo claro).
 const WA = {
@@ -28,19 +33,33 @@ const WA = {
   inc: "#ffffff",
 };
 
+type Intent = "pedido" | "deuda" | null;
+
 export function WhatsApp() {
   const nav = useNavigate();
   const { placed } = useOrder();
   const { selected } = useDelivery();
-  const [step, setStep] = useState(placed ? 3 : 1); // intro
-  const [confirm, setConfirm] = useState(0); // confirmación post-pedido
+  const { paidId } = useDebts();
+  const paidDebt = paidId ? debtById(paidId) : undefined;
+
+  const [intent, setIntent] = useState<Intent>(
+    placed ? "pedido" : paidDebt ? "deuda" : null,
+  );
+  const resolved = Boolean(placed || paidDebt);
+
+  // step: 1 = saludo cliente · 2 = bot pregunta + chips · 3 = respuesta bot ·
+  // 4 = tarjeta (catálogo o deudas).
+  const [step, setStep] = useState(resolved ? 4 : 1);
+  const [confirm, setConfirm] = useState(0); // confirmación post-acción
   const [typing, setTyping] = useState(false);
   const [opening, setOpening] = useState(false);
+  const [openingLabel, setOpeningLabel] = useState("Abriendo eVenado…");
   const endRef = useRef<HTMLDivElement>(null);
 
-  // Animación de introducción (solo si aún no hay pedido).
+  // Animación de introducción: saludo + pregunta de intención (solo si no
+  // venimos de vuelta de un pedido/deuda ya resuelto).
   useEffect(() => {
-    if (placed) return;
+    if (resolved) return;
     const t: number[] = [];
     t.push(window.setTimeout(() => setTyping(true), 700));
     t.push(
@@ -49,17 +68,25 @@ export function WhatsApp() {
         setStep(2);
       }, 1900),
     );
-    t.push(window.setTimeout(() => setTyping(true), 2200));
-    t.push(
+    return () => t.forEach(clearTimeout);
+  }, [resolved]);
+
+  // Respuesta del bot una vez que el cliente elige qué quiere hacer.
+  const pickIntent = (value: "pedido" | "deuda") => {
+    setIntent(value);
+    setTyping(true);
+    window.setTimeout(() => {
+      setTyping(false);
+      setStep(3);
+      window.setTimeout(() => setTyping(true), 300);
       window.setTimeout(() => {
         setTyping(false);
-        setStep(3);
-      }, 3400),
-    );
-    return () => t.forEach(clearTimeout);
-  }, [placed]);
+        setStep(4);
+      }, 1400);
+    }, 1100);
+  };
 
-  // Confirmación del pedido (cuando el cliente vuelve tras pagar).
+  // Confirmación del pedido (cuando el cliente vuelve tras pagar el pedido).
   useEffect(() => {
     if (!placed) return;
     const t: number[] = [];
@@ -81,13 +108,37 @@ export function WhatsApp() {
     return () => t.forEach(clearTimeout);
   }, [placed]);
 
+  // Confirmación del pago de deuda (cuando el cliente vuelve del módulo de
+  // pago de deudas).
+  useEffect(() => {
+    if (!paidDebt) return;
+    const t: number[] = [];
+    t.push(window.setTimeout(() => setTyping(true), 700));
+    t.push(
+      window.setTimeout(() => {
+        setTyping(false);
+        setConfirm(1);
+      }, 1800),
+    );
+    t.push(window.setTimeout(() => setConfirm(2), 2400));
+    t.push(window.setTimeout(() => setTyping(true), 2800));
+    t.push(
+      window.setTimeout(() => {
+        setTyping(false);
+        setConfirm(3);
+      }, 4000),
+    );
+    return () => t.forEach(clearTimeout);
+  }, [paidDebt]);
+
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [step, typing, confirm]);
 
-  const openCatalog = () => {
+  const openApp = (path: string, label: string) => {
+    setOpeningLabel(label);
     setOpening(true);
-    window.setTimeout(() => nav("/login"), 950);
+    window.setTimeout(() => nav(path), 950);
   };
 
   return (
@@ -125,24 +176,63 @@ export function WhatsApp() {
           {/* Cliente */}
           {step >= 1 && (
             <Bubble side="out">
-              Hola, buenas 👋 Quiero hacer un pedido de productos.
+              Hola, buenas 👋
               <Meta time="14:20" />
             </Bubble>
           )}
 
-          {/* Bot saludo */}
+          {/* Bot: saludo y pregunta de intención */}
           {step >= 2 && (
             <Bubble side="in">
-              ¡Hola <b>{customer.businessName}</b>! 👋 Con gusto. Te preparé tu
-              catálogo con tus precios de la lista <b>{customer.priceList}</b>.
+              ¡Hola <b>{customer.businessName}</b>! 👋 Soy el asistente de
+              eVenado. ¿En qué te ayudo hoy?
               <Meta time="14:20" in />
             </Bubble>
           )}
 
-          {/* Bot: tarjeta de catálogo */}
-          {step >= 3 && (
+          {/* Chips de intención */}
+          {step === 2 && intent === null && (
+            <div className="flex flex-wrap gap-2 self-start">
+              <Chip onClick={() => pickIntent("pedido")}>
+                <ShoppingCart size={14} /> Hacer un pedido
+              </Chip>
+              <Chip onClick={() => pickIntent("deuda")}>
+                <Wallet size={14} /> Pagar mi deuda
+              </Chip>
+            </div>
+          )}
+
+          {/* Respuesta elegida por el cliente */}
+          {step >= 3 && intent && (
+            <Bubble side="out">
+              {intent === "pedido"
+                ? "Quiero hacer un pedido de productos."
+                : "Quiero pagar mi deuda."}
+              <Meta time="14:20" />
+            </Bubble>
+          )}
+
+          {/* Bot: respuesta de texto según intención */}
+          {step >= 3 && intent === "pedido" && (
+            <Bubble side="in">
+              Con gusto. Te preparé tu catálogo con tus precios de la lista{" "}
+              <b>{customer.priceList}</b>.
+              <Meta time="14:20" in />
+            </Bubble>
+          )}
+          {step >= 3 && intent === "deuda" && (
+            <Bubble side="in">
+              Claro, reviso tu cuenta… Tenés{" "}
+              <b>{bs(totalDebt())}</b> pendiente en facturas. Te muestro el
+              detalle para que puedas pagar.
+              <Meta time="14:20" in />
+            </Bubble>
+          )}
+
+          {/* Bot: tarjeta según intención */}
+          {step >= 4 && intent === "pedido" && (
             <button
-              onClick={openCatalog}
+              onClick={() => openApp("/login", "Abriendo eVenado Catálogo…")}
               className="max-w-[82%] self-start overflow-hidden rounded-xl rounded-tl-sm bg-white text-left shadow-sm"
             >
               <div className="flex items-center gap-3 bg-brand/5 p-2.5">
@@ -158,6 +248,30 @@ export function WhatsApp() {
               </div>
               <div className="flex items-center justify-center gap-1 border-t border-hair py-2 text-[13px] font-semibold text-brand">
                 Abrir catálogo <ChevronRight size={16} />
+              </div>
+              <Meta time="14:20" in />
+            </button>
+          )}
+          {step >= 4 && intent === "deuda" && (
+            <button
+              onClick={() => openApp("/deudas", "Abriendo Mis Deudas…")}
+              className="max-w-[82%] self-start overflow-hidden rounded-xl rounded-tl-sm bg-white text-left shadow-sm"
+            >
+              <div className="flex items-center gap-3 bg-brand/5 p-2.5">
+                <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-brand text-white">
+                  <Wallet size={22} />
+                </span>
+                <div className="min-w-0">
+                  <p className="truncate font-display text-[14px] font-bold text-ink">
+                    Mis Deudas
+                  </p>
+                  <p className="truncate text-[12px] text-muted">
+                    Consultá y pagá tus facturas pendientes.
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center justify-center gap-1 border-t border-hair py-2 text-[13px] font-semibold text-brand">
+                Ver y pagar mis deudas <ChevronRight size={16} />
               </div>
               <Meta time="14:20" in />
             </button>
@@ -206,6 +320,48 @@ export function WhatsApp() {
             </Bubble>
           )}
 
+          {/* ---- Confirmación tras el pago de deuda ---- */}
+          {confirm >= 1 && paidDebt && (
+            <Bubble side="in">
+              ✅ ¡Recibimos tu pago! La factura <b>#{paidDebt.id}</b> quedó{" "}
+              <b>cancelada</b> por <b>{bs(paidDebt.amount)}</b>.
+              <Meta time="14:27" in />
+            </Bubble>
+          )}
+
+          {confirm >= 2 && paidDebt && (
+            <button
+              onClick={() => nav(`/deuda/${paidDebt.id}`)}
+              className="max-w-[82%] self-start overflow-hidden rounded-xl rounded-tl-sm bg-white text-left shadow-sm"
+            >
+              <div className="flex items-center gap-3 p-2.5">
+                <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-success-50 text-success">
+                  <Receipt size={20} />
+                </span>
+                <div className="min-w-0">
+                  <p className="truncate font-display text-[14px] font-bold text-ink">
+                    Factura #{paidDebt.id}
+                  </p>
+                  <p className="truncate text-[12px] text-success">
+                    Pagada · {bs(paidDebt.amount)}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center justify-center gap-1 border-t border-hair py-2 text-[13px] font-semibold text-brand">
+                Ver comprobante <ChevronRight size={16} />
+              </div>
+              <Meta time="14:27" in />
+            </button>
+          )}
+
+          {confirm >= 3 && paidDebt && (
+            <Bubble side="in">
+              🙌 Gracias por poner tu cuenta al día. Cualquier otra consulta,
+              escribime por aquí. 🦌
+              <Meta time="14:27" in />
+            </Bubble>
+          )}
+
           {/* Typing */}
           {typing && (
             <div className="flex w-14 items-center justify-center gap-1 self-start rounded-xl rounded-tl-sm bg-white px-3 py-3 shadow-sm">
@@ -242,7 +398,7 @@ export function WhatsApp() {
           <VenadoLogo className="h-16 w-16" rounded="rounded-2xl" />
           <div className="flex items-center gap-2 text-sm font-medium text-muted">
             <Loader2 size={16} className="animate-spin" />
-            Abriendo eVenado Catálogo…
+            {openingLabel}
           </div>
         </div>
       )}
@@ -285,5 +441,22 @@ function Dot({ delay = "0s" }: { delay?: string }) {
       className="h-2 w-2 animate-bounce rounded-full bg-[#9aa6ad]"
       style={{ animationDelay: delay }}
     />
+  );
+}
+
+function Chip({
+  onClick,
+  children,
+}: {
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className="inline-flex items-center gap-1.5 rounded-full border border-brand bg-white px-3 py-1.5 text-[13px] font-semibold text-brand shadow-sm outline-none transition-colors hover:bg-brand-50 focus-visible:ring-[3px] focus-visible:ring-ring/50"
+    >
+      {children}
+    </button>
   );
 }

@@ -3,6 +3,7 @@ import { CartProvider } from "@/state/cart";
 import { OrderProvider } from "@/state/order";
 import { SessionProvider } from "@/state/session";
 import { DeliveryProvider } from "@/state/delivery";
+import { DebtsProvider } from "@/state/debts";
 import { DeviceFrame } from "@/components/DeviceFrame";
 import { Home } from "@/screens/Home";
 import { Catalog } from "@/screens/Catalog";
@@ -17,6 +18,9 @@ import { Login } from "@/screens/Login";
 import { Search } from "@/screens/Search";
 import { Categories } from "@/screens/Categories";
 import { WhatsApp } from "@/screens/WhatsApp";
+import { Debts } from "@/screens/Debts";
+import { DebtDetail } from "@/screens/DebtDetail";
+import { DebtPayment } from "@/screens/DebtPayment";
 
 const router = createHashRouter([
   {
@@ -35,6 +39,11 @@ const router = createHashRouter([
       { path: "/pedidos", element: <OrderHistory /> },
       { path: "/pedido/:num", element: <OrderStatus /> },
       { path: "/perfil", element: <Profile /> },
+      // Módulo de pago de deudas: dominio separado del catálogo/carrito,
+      // solo accesible vía handoff del bot. Sin navegación cruzada.
+      { path: "/deudas", element: <Debts /> },
+      { path: "/deuda/:id", element: <DebtDetail /> },
+      { path: "/deuda/:id/pago", element: <DebtPayment /> },
     ],
   },
 ]);
@@ -45,7 +54,9 @@ export default function App() {
       <CartProvider>
         <DeliveryProvider>
           <OrderProvider>
-            <RouterProvider router={router} />
+            <DebtsProvider>
+              <RouterProvider router={router} />
+            </DebtsProvider>
           </OrderProvider>
         </DeliveryProvider>
       </CartProvider>
